@@ -7,6 +7,7 @@ const rl = readline.createInterface({
 
 let directory = [];
 
+// Gather user input
 rl.on("line", (input) => {
   if (input.toLowerCase() === "exit") {
     console.log("Exiting program...");
@@ -17,6 +18,7 @@ rl.on("line", (input) => {
   }
 });
 
+// Select Methods
 function selectMethod(inputLine) {
   if (inputLine[0].toUpperCase() == "CREATE") {
     createFolder(inputLine);
@@ -37,6 +39,7 @@ function moveFolder(inputLine) {
 
   const fromFolderIndex = directory.indexOf(fromFolder);
 
+  // Validate for non existent folders
   if (fromFolderIndex === -1) {
     console.log(`Could not move`);
     return;
@@ -49,6 +52,7 @@ function moveFolder(inputLine) {
 
   let slicePoint = fromFolder.split("/").length - 1;
 
+  // Move folders and format paths
   directory = directory.map((folder) => {
     if (folder.includes(fromFolder)) {
       let splitFolder = folder.split("/");
@@ -64,6 +68,7 @@ function listFolders() {
 
   const seenPaths = new Set();
 
+  // Log folders with indentation
   sortedDirectory.forEach((path) => {
     let splitString = path.split("/");
     let currentPath = "";
@@ -87,17 +92,18 @@ function sortDirectory() {
   return directory.sort((a, b) => {
     const aParts = a.split("/");
     const bParts = b.split("/");
-
+    // Sort by similar strings
     for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
       const comparison = aParts[i].localeCompare(bParts[i]);
       if (comparison !== 0) {
         return comparison;
       }
     }
-
+    // Sort by slice length
     return aParts.length - bParts.length;
   });
 }
+
 function createFolder(inputLine) {
   let hasError = createCommandHasErrors(inputLine);
 
@@ -106,7 +112,7 @@ function createFolder(inputLine) {
   }
 
   folderName = inputLine[1];
-
+  // Create folder, considering appending paths
   if (folderName.indexOf("/") > -1) {
     let folders = folderName.split("/");
     let path = folders[0];
@@ -129,6 +135,7 @@ function createFolder(inputLine) {
 }
 
 function createCommandHasErrors(inputLine) {
+  // Validate create
   if (inputLine.length > 2) {
     console.warn("Too many args for 'CREATE'");
     return true;
@@ -143,12 +150,13 @@ function deleteFolder(inputLine) {
   folderName = inputLine[1];
 
   var folderIndex = directory.indexOf(folderName);
-
+  // If folder not found, warn and return
   if (folderIndex == -1) {
     console.warn(`Cannot remove ${folderName}, does not exist.`);
     return;
   }
 
+  // Delete folder
   directory = directory.filter((folder) => {
     return !folder.includes(folderName);
   });
