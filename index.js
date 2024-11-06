@@ -5,14 +5,7 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-let directory = [
-  "foo",
-  "bar",
-  "foo/foo1",
-  "bar/bar1",
-  "foo/foo1/foo2",
-  "bar/bar1/bar2",
-];
+let directory = [];
 
 rl.on("line", (input) => {
   if (input.toLowerCase() === "exit") {
@@ -67,17 +60,25 @@ function moveFolder(inputLine) {
 function listFolders() {
   const sortedDirectory = sortDirectory();
 
-  for (let i = 0; i < sortedDirectory.length; i++) {
-    let splitString = sortedDirectory[i].split("/");
-    let indentation = "";
-    splitString.forEach((section, i) => {
-      if (i !== 0) {
-        indentation += "  ";
+  const seenPaths = new Set();
+
+  sortedDirectory.forEach((path) => {
+    let splitString = path.split("/");
+    let currentPath = "";
+
+    splitString.forEach((section, index) => {
+      currentPath += (index > 0 ? "/" : "") + section;
+      if (!seenPaths.has(currentPath)) {
+        seenPaths.add(currentPath);
+        console.log(
+          "  ".repeat(index) +
+            `${currentPath.split("/")[currentPath.split("/").length - 1]}`
+        );
       }
     });
+  });
 
-    console.log(`${indentation}${splitString[splitString.length - 1]}`);
-  }
+  console.log(sortedDirectory);
 }
 
 function sortDirectory() {
@@ -86,15 +87,15 @@ function sortDirectory() {
     const bParts = b.split("/");
 
     for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
-      if (aParts[i] !== bParts[i]) {
-        return aParts[i].localeCompare(bParts[i]);
+      const comparison = aParts[i].localeCompare(bParts[i]);
+      if (comparison !== 0) {
+        return comparison;
       }
     }
 
     return aParts.length - bParts.length;
   });
 }
-
 function createFolder(inputLine) {
   let hasError = createCommandHasErrors(inputLine);
 
