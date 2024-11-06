@@ -9,7 +9,7 @@ let directory = [];
 
 rl.on("line", (input) => {
   if (input.toLowerCase() === "exit") {
-    console.log("Goodbye!");
+    console.log("Exiting program...");
     rl.close();
   } else {
     let inputLine = input.split(" ");
@@ -26,6 +26,8 @@ function selectMethod(inputLine) {
     deleteFolder(inputLine);
   } else if (inputLine[0].toUpperCase() == "MOVE") {
     moveFolder(inputLine);
+  } else {
+    console.warn("Invalid method");
   }
 }
 
