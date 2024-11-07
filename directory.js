@@ -40,13 +40,9 @@ function moveFolder(inputLine) {
   const fromFolderIndex = directory.indexOf(fromFolder);
 
   // Validate for non existent folders
-  if (fromFolderIndex === -1) {
-    console.log(`Could not move`);
-    return;
-  }
+  let hasErrors = moveCommandHasErrors(fromFolderIndex, toFolder, inputLine);
 
-  if (!directory.includes(toFolder)) {
-    console.log(`Could not move`);
+  if (hasErrors) {
     return;
   }
 
@@ -61,6 +57,27 @@ function moveFolder(inputLine) {
     }
     return folder;
   });
+}
+
+function moveCommandHasErrors(fromFolderIndex, toFolder, inputLine) {
+  if (inputLine.length > 3) {
+    console.warn("Too many args for 'CREATE'");
+    return true;
+  } else if (inputLine.length < 3) {
+    console.warn("Too few args for 'CREATE'");
+    return true;
+  }
+
+  if (fromFolderIndex === -1) {
+    console.warn(`Could not move - ${fromFolder} does not exist`);
+    return true;
+  }
+
+  if (!directory.includes(toFolder)) {
+    console.warn(`Could not move - ${toFolder} does not exist`);
+    return true;
+  }
+  return false;
 }
 
 function listFolders() {
@@ -84,14 +101,13 @@ function listFolders() {
       }
     });
   });
-
-  console.log(sortedDirectory);
 }
 
 function sortDirectory() {
   return directory.sort((a, b) => {
     const aParts = a.split("/");
     const bParts = b.split("/");
+
     // Sort by similar strings
     for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
       const comparison = aParts[i].localeCompare(bParts[i]);
@@ -99,6 +115,7 @@ function sortDirectory() {
         return comparison;
       }
     }
+
     // Sort by slice length
     return aParts.length - bParts.length;
   });
@@ -149,10 +166,10 @@ function createCommandHasErrors(inputLine) {
 function deleteFolder(inputLine) {
   folderName = inputLine[1];
 
-  var folderIndex = directory.indexOf(folderName);
-  // If folder not found, warn and return
-  if (folderIndex == -1) {
-    console.warn(`Cannot remove ${folderName}, does not exist.`);
+  let folderIndex = directory.indexOf(folderName);
+  let hasError = deleteCommandHasErrors(folderName, folderIndex, inputLine);
+
+  if (hasError) {
     return;
   }
 
@@ -160,4 +177,33 @@ function deleteFolder(inputLine) {
   directory = directory.filter((folder) => {
     return !folder.includes(folderName);
   });
+}
+
+function deleteCommandHasErrors(folderName, folderIndex, inputLine) {
+  if (inputLine.length > 2) {
+    console.warn("Too many args for 'DELETE'");
+    return true;
+  } else if (inputLine.length === 1) {
+    console.warn("Too few args for 'DELETE'");
+    return true;
+  }
+
+  // If folder not found, warn and return
+  if (folderIndex == -1) {
+    let folders = folderName.split("/");
+    let path = "";
+    let missingFolder = "";
+
+    for (let i = 0; i < folders.length; i++) {
+      path = i === 0 ? `${folders[i]}` : `/${folders[i]}`;
+      missingFolder = directory.includes(path) ? "" : path;
+      if (missingFolder !== "") {
+        console.warn(
+          `Cannot delete ${folderName} - ${missingFolder} does not exist.`
+        );
+        return true;
+      }
+    }
+  }
+  return false;
 }
