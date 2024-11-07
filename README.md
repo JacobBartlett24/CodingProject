@@ -25,4 +25,4 @@ MOVE vegetables foods \
 LIST \
 DELETE fruits/apples \
 DELETE foods/fruits/apples \
-LIST \
+LIST
